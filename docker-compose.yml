@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # SecureDoc DMS Application Service (Unified Web App)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: securedoc_app
+    restart: unless-stopped
+    ports:
+      - '5000:5000'
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/legal_dms
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-change_in_production_jwt_access_secret_key_32c}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-change_in_production_jwt_refresh_secret_key_32c}
+      - MASTER_KEY_HEX=${MASTER_KEY_HEX:-0000000000000000000000000000000000000000000000000000000000000000}
+      - CLIENT_ORIGIN=${CLIENT_ORIGIN:-http://localhost:5000}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  # Local MongoDB Service with Persistent Volume
+  mongo:
+    image: mongo:7.0
+    container_name: securedoc_db
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mongo_data:
+    driver: local

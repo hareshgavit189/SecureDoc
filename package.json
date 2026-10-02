@@ -1,0 +1,25 @@
+{
+  "name": "securedoc-dms",
+  "version": "1.0.0",
+  "description": "Secure Digital Document Management System (DMS) for Legal & Investigation Documents - Ministry of Home Affairs / NCRB",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "build": "npm --prefix client run build",
+    "start": "node server/src/server.js",
+    "seed": "npm --prefix server run seed",
+    "test": "npm --prefix server test",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev"
+  },
+  "keywords": [
+    "dms",
+    "blockchain",
+    "merkle-tree",
+    "aes-256-gcm",
+    "bsa-2023",
+    "ncrb",
+    "legal-tech"
+  ],
+  "author": "SecureDoc Engineering Team",
+  "license": "ISC"
+}

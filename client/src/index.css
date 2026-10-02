@@ -1,0 +1,532 @@
+/* ============================================================
+   SecureDoc DMS — Professional Design System & UI Stylesheet
+   MHA · NCRB · Women Safety Division
+   Theme: National Security, Cybersecurity, High Precision
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --sidebar-width: 260px;
+  --navbar-height: 60px;
+
+  /* Palette */
+  --slate-900: #0f172a;
+  --slate-850: #131d35;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+  --slate-300: #cbd5e1;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50:  #f8fafc;
+
+  --primary: #1e40af;
+  --primary-hover: #1d4ed8;
+  --primary-subtle: #dbeafe;
+
+  --accent-red: #e11d48;
+  --accent-crimson: #be123c;
+  --accent-red-subtle: #ffe4e6;
+
+  --navy-base: #0a1128;
+  --navy-card: #101d42;
+
+  --emerald: #059669;
+  --emerald-subtle: #d1fae5;
+
+  --amber: #d97706;
+  --amber-subtle: #fef3c7;
+
+  /* Elevations */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Base Reset & Typography ────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #f4f6fa;
+  color: #1e293b;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Custom Scrollbars ──────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Top Navigation Bar ─────────────────────────────────────── */
+.top-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--navbar-height);
+  background: #090e1a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1040;
+  transition: var(--transition-normal);
+}
+
+.top-navbar .navbar-brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  color: #ffffff !important;
+  text-decoration: none;
+}
+
+.top-navbar .brand-accent {
+  color: #38bdf8;
+}
+
+/* ── 3-Line Hamburger Navigation Toggler ───────────────────── */
+.btn-nav-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
+  border-radius: var(--radius-md);
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-nav-toggle:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.btn-nav-toggle:active {
+  transform: scale(0.95);
+}
+
+.hamburger-icon {
+  display: block;
+  transition: stroke var(--transition-fast);
+}
+
+.btn-nav-toggle:hover .hamburger-icon {
+  stroke: #38bdf8;
+}
+
+/* ── Desktop Collapsible Sidebar & Expanded Main ───────────── */
+@media (min-width: 992px) {
+  .sidebar {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+  .main-content {
+    transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .main-content.expanded {
+    margin-left: 0 !important;
+  }
+}
+
+/* ── Responsive Sidebar ─────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: var(--navbar-height);
+  left: 0;
+  width: var(--sidebar-width);
+  height: calc(100vh - var(--navbar-height));
+  background: linear-gradient(180deg, #090e1a 0%, #0d1527 50%, #0a1120 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1030;
+  transition: transform var(--transition-normal);
+}
+
+.sidebar-nav {
+  padding: 1rem 0.75rem;
+}
+
+.sidebar-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 0.85rem 0.75rem 0.35rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  margin-bottom: 2px;
+  transition: all var(--transition-fast);
+}
+
+.sidebar-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.06);
+  transform: translateX(2px);
+}
+
+.sidebar-link.active {
+  color: #ffffff;
+  background: linear-gradient(90deg, rgba(14, 165, 233, 0.15) 0%, rgba(14, 165, 233, 0.05) 100%);
+  border-left: 3px solid #38bdf8;
+  font-weight: 600;
+}
+
+.sidebar-link .icon {
+  font-size: 1.05rem;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-divider {
+  border-color: rgba(255, 255, 255, 0.06);
+  margin: 0.6rem 0.5rem;
+}
+
+/* ── Sidebar Mobile Overlay Backdrop ───────────────────────── */
+.sidebar-backdrop {
+  position: fixed;
+  top: var(--navbar-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1025;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Main Layout Content Area ───────────────────────────────── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  margin-top: var(--navbar-height);
+  min-height: calc(100vh - var(--navbar-height));
+  padding: 1.75rem 2rem;
+  transition: margin-left var(--transition-normal);
+}
+
+/* ── Media Query Breakpoints (Mobile / Tablet) ─────────────── */
+@media (max-width: 991.98px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 280px;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.35);
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .main-content {
+    margin-left: 0 !important;
+    padding: 1.25rem 1rem;
+  }
+}
+
+/* ── Modern Card System ─────────────────────────────────────── */
+.card {
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  background-color: #ffffff;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--slate-100);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+  color: var(--slate-800);
+}
+
+/* ── Executive Stat Cards ───────────────────────────────────── */
+.stat-card {
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-card .stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--slate-900);
+  line-height: 1.1;
+}
+
+.stat-card .stat-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-500);
+}
+
+.stat-card-primary  { border-top: 3px solid #2563eb; }
+.stat-card-danger   { border-top: 3px solid #e11d48; }
+.stat-card-warning  { border-top: 3px solid #f59e0b; }
+.stat-card-success  { border-top: 3px solid #10b981; }
+
+.stat-card .stat-icon {
+  font-size: 2rem;
+  opacity: 0.85;
+}
+
+/* ── Page Header Banner ─────────────────────────────────────── */
+.page-header {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--slate-900);
+  margin: 0;
+}
+
+/* ── Polished Tables ────────────────────────────────────────── */
+.table {
+  color: var(--slate-700);
+  margin-bottom: 0;
+}
+
+.table th {
+  background-color: var(--slate-50);
+  color: var(--slate-500);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--slate-200);
+  padding: 0.85rem 1rem;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 0.85rem 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--slate-100);
+  font-size: 0.88rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* ── Modern Soft Badges ─────────────────────────────────────── */
+.badge {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.4em 0.75em;
+  border-radius: var(--radius-sm);
+}
+
+.badge-soft-primary {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe;
+}
+
+.badge-soft-danger {
+  background-color: #fff1f2 !important;
+  color: #be123c !important;
+  border: 1px solid #fecdd3;
+}
+
+.badge-soft-warning {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a;
+}
+
+.badge-soft-success {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0;
+}
+
+/* ── Monospace Cryptographic Hash Pill ──────────────────────── */
+.font-mono {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.hash-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all var(--transition-fast);
+}
+
+.hash-display:hover {
+  background-color: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.hash-display .copy-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+/* ── Login Portal Aesthetics ────────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 60%, #020617 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 460px;
+}
+
+.login-card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.login-header {
+  background: linear-gradient(135deg, #090e1a 0%, #16213e 100%);
+  padding: 2.25rem 2rem 1.75rem;
+  text-align: center;
+  border-bottom: 2px solid #38bdf8;
+}
+
+.login-shield-wrapper {
+  display: inline-flex;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+
+.login-shield-icon {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+}
+
+/* ── Women Safety Division Theme ────────────────────────────── */
+.women-safety-header {
+  background: linear-gradient(135deg, #9f1239 0%, #e11d48 50%, #be123c 100%);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.75rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1.5rem;
+}
+
+/* ── Buttons & Forms ────────────────────────────────────────── */
+.btn {
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.form-control, .form-select {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--slate-300);
+  font-size: 0.88rem;
+  padding: 0.55rem 0.85rem;
+  transition: all var(--transition-fast);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ── Clearances ─────────────────────────────────────────────── */
+.clearance-secret       { border-left: 4px solid #e11d48 !important; }
+.clearance-confidential { border-left: 4px solid #ea580c !important; }
+.clearance-restricted   { border-left: 4px solid #eab308 !important; }
+.clearance-public       { border-left: 4px solid #10b981 !important; }
+
+/* ── Utility Animations ─────────────────────────────────────── */
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-in-out;
+}
