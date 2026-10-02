@@ -29,19 +29,41 @@ function signRefreshToken(user) {
 // POST /auth/register
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, role, department, clearance } = req.body;
+    const { name, email, password } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ success: false, error: 'name, email, and password are required' });
+    }
+    if (password.length < 12) {
+      return res.status(400).json({ success: false, error: 'Password must be at least 12 characters' });
     }
     const existing = await User.findOne({ email });
     if (existing) return res.status(409).json({ success: false, error: 'Email already registered' });
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const user = await User.create({ name, email, passwordHash, role, department, clearance });
+    const user = await User.create({
+      name,
+      email,
+      passwordHash,
+      role: 'citizen',
+      department: '',
+      clearance: 'public',
+      approvalStatus: 'approved',
+    });
 
-    await addAudit({ userId: user._id, action: 'USER_REGISTER', ip: req.ip, metadata: { email } });
+    await addAudit({
+      userId: user._id,
+      action: 'USER_REGISTER',
+      ip: req.ip,
+      metadata: { email, role: 'citizen', selfRegistration: true },
+    });
 
-    res.status(201).json({ success: true, data: { message: 'User registered successfully', userId: user._id } });
+    res.status(201).json({
+      success: true,
+      data: {
+        message: 'Registration successful. You can now sign in as a normal user.',
+        userId: user._id,
+      },
+    });
   } catch (err) { next(err); }
 };
 
@@ -55,6 +77,12 @@ exports.login = async (req, res, next) => {
 
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    if (user.approvalStatus === 'pending') {
+      return res.status(403).json({ success: false, error: 'Your account is awaiting authority approval' });
+    }
+    if (user.approvalStatus === 'rejected') {
+      return res.status(403).json({ success: false, error: 'Your account approval was rejected' });
+    }
 
     // Check account lock
     if (user.isLocked) {
@@ -220,17 +248,45 @@ exports.listUsers = async (req, res, next) => {
 // PUT /auth/users/:id (admin only)
 exports.updateUser = async (req, res, next) => {
   try {
-    const { role, clearance, department, unlock } = req.body;
+    const { role, clearance, department, unlock, approvalStatus, rejectionReason } = req.body;
     const update = {};
     if (role) update.role = role;
     if (clearance) update.clearance = clearance;
     if (department !== undefined) update.department = department;
+    if (approvalStatus) update.approvalStatus = approvalStatus;
+    if (rejectionReason !== undefined) update.rejectionReason = rejectionReason;
     if (unlock) {
       update.lockUntil = null;
       update.loginAttempts = 0;
     }
-    const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-passwordHash -totpSecret -refreshTokenHash -encPrivateKey');
-    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+    const existingUser = await User.findById(req.params.id);
+    if (!existingUser) return res.status(404).json({ success: false, error: 'User not found' });
+    if (approvalStatus === 'approved' || (role && role !== 'citizen')) {
+      update.approvalStatus = 'approved';
+      update.approvedBy = req.user.id;
+      update.approvedAt = new Date();
+      update.rejectionReason = '';
+    }
+    if (approvalStatus === 'rejected') {
+      update.approvedBy = req.user.id;
+      update.approvedAt = new Date();
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, update, { new: true })
+      .select('-passwordHash -totpSecret -refreshTokenHash -encPrivateKey');
+    await addAudit({
+      userId: req.user.id,
+      action: 'USER_AUTHORITY_APPROVAL',
+      ip: req.ip,
+      metadata: {
+        targetUserId: existingUser._id,
+        email: existingUser.email,
+        previousRole: existingUser.role,
+        approvedRole: user.role,
+        previousApprovalStatus: existingUser.approvalStatus,
+        approvalStatus: user.approvalStatus,
+      },
+    });
     res.json({ success: true, data: user });
   } catch (err) { next(err); }
 };

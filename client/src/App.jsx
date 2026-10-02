@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import Layout from './components/Layout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import CasesPage from './pages/CasesPage.jsx';
 import CaseDetailPage from './pages/CaseDetailPage.jsx';
@@ -45,6 +46,7 @@ function App() {
         <Routes>
           {/* Public & Contextual routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify" element={<VerifyWrapper />} />
 
           {/* Root redirect */}

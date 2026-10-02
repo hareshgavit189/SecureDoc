@@ -5,7 +5,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { authenticate, authorize } = require('../middleware/auth');
 
-router.post('/register', authenticate, authorize('admin'), authController.register);
+router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/2fa/setup', authenticate, authController.setup2FA);
 router.post('/2fa/verify', authenticate, authController.verify2FA);

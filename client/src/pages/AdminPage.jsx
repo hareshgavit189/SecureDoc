@@ -188,7 +188,7 @@ export default function AdminPage() {
         <div className="card shadow-sm border-0">
           <div className="card-header bg-white py-3 d-flex align-items-center justify-content-between">
             <span className="fw-bold">Security Profiles & Roles Roster</span>
-            <span className="text-muted small">Enforcing Principle of Least Privilege</span>
+            <span className="text-muted small">Citizen self-registration; authority-approved role assignment</span>
           </div>
           <div className="card-body p-0">
             <div className="table-responsive">
@@ -200,6 +200,7 @@ export default function AdminPage() {
                     <th>Role</th>
                     <th>Department</th>
                     <th>Clearance</th>
+                    <th>Approval</th>
                     <th>2FA (TOTP)</th>
                     <th>Status</th>
                     <th className="text-end">Actions</th>
@@ -208,13 +209,13 @@ export default function AdminPage() {
                 <tbody>
                   {usersLoading ? (
                     <tr>
-                      <td colSpan="8" className="text-center py-4 text-muted">
+                      <td colSpan="9" className="text-center py-4 text-muted">
                         <span className="spinner-border spinner-border-sm me-2" /> Loading users...
                       </td>
                     </tr>
                   ) : users.length === 0 ? (
                     <tr>
-                      <td colSpan="8" className="text-center py-4 text-muted">
+                      <td colSpan="9" className="text-center py-4 text-muted">
                         No registered users found.
                       </td>
                     </tr>
@@ -225,6 +226,14 @@ export default function AdminPage() {
                         <tr key={u._id}>
                           <td className="fw-semibold">{u.name}</td>
                           <td className="small text-muted font-monospace">{u.email}</td>
+                          <td>
+                            <span className={`badge ${
+                              u.approvalStatus === 'approved' ? 'bg-success' :
+                                u.approvalStatus === 'rejected' ? 'bg-danger' : 'bg-warning text-dark'
+                            }`}>
+                              {u.approvalStatus || 'approved'}
+                            </span>
+                          </td>
                           <td>
                             <span className={`badge bg-${getRoleBadgeColor(u.role)} text-uppercase`}>
                               {u.role}
@@ -253,7 +262,7 @@ export default function AdminPage() {
                               className="btn btn-sm btn-outline-primary"
                               onClick={() => setUserModal({ ...u, unlock: false })}
                             >
-                              Edit RBAC
+                              Approve / Edit RBAC
                             </button>
                           </td>
                         </tr>

@@ -82,7 +82,7 @@ Render and Vercel account creation, DNS, MongoDB network allowlists, TLS issuanc
 
 Production restrictions:
 
-- Public registration is disabled; administrators create accounts.
+- Public registration creates only approved normal citizen accounts. Administrators approve privileged role assignments through the admin console; approval status and authority metadata are stored with each user record.
 - Demo seeding is blocked when `NODE_ENV=production`.
 - Mock Aadhaar eSign callbacks are disabled in production.
 - MongoDB is not published by the included Docker Compose configuration.

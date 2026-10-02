@@ -4,7 +4,7 @@
  * In-Memory Token Handling, Brute-Force Guard, and TOTP 2FA.
  */
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const DEMO_PERSONAS = [
@@ -174,6 +174,10 @@ function LoginPage() {
                 )}
               </button>
             </form>
+
+            <div className="text-center mt-3 small">
+              New normal user? <Link to="/register">Create an account</Link>
+            </div>
 
             {/* Quick Persona Selector */}
             <div className="mt-4 pt-3 border-top">
