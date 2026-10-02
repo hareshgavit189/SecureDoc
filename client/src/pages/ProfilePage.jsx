@@ -19,8 +19,6 @@ export default function ProfilePage() {
   const [totpError, setTotpError] = useState('');
 
   // Key Pair State
-  const [keyPairLoading, setKeyPairLoading] = useState(false);
-  const [keyPairSuccess, setKeyPairSuccess] = useState('');
 
   const handleInitiate2FA = async () => {
     setTotpLoading(true);

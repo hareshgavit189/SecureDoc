@@ -10,6 +10,10 @@
 
 require('dotenv').config();
 
+if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO_SEED !== 'true' && !process.argv.includes('--allow-demo-seed')) {
+  throw new Error('Demo seeding is disabled in production. Set ALLOW_DEMO_SEED=true only for an isolated demo database.');
+}
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 

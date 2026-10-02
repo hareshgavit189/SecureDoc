@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { useAuth } from '../context/AuthContext.jsx';
-import { formatDate, formatDateOnly, getDaysOpen, getCaseStatusColor, truncateHash } from '../utils/formatters';
+import { formatDate, formatDateOnly, getDaysOpen, getCaseStatusColor } from '../utils/formatters';
 import ClassificationBadge from '../components/ClassificationBadge.jsx';
 import HashDisplay from '../components/HashDisplay.jsx';
 

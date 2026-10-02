@@ -8,6 +8,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
 
 // Route imports
 const authRoutes = require('./routes/authRoutes');
@@ -23,6 +24,10 @@ const womenSafetyRoutes = require('./routes/womenSafetyRoutes');
 const auditRoutes = require('./routes/auditRoutes');
 
 const app = express();
+const configuredOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 // ---------------------------------------------------------------------------
 // Security headers
@@ -39,7 +44,12 @@ app.use(
 // ---------------------------------------------------------------------------
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+    origin(origin, callback) {
+      if (!origin || configuredOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Request origin is not allowed'));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -98,14 +108,38 @@ app.use((req, res, next) => {
 
 app.use(cookieParser());
 
+// Protect cookie-authenticated state changes against cross-site requests.
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV !== 'production' || ['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    return next();
+  }
+  const origin = req.get('origin');
+  if (origin && !configuredOrigins.includes(origin)) {
+    return res.status(403).json({ success: false, error: 'Request origin is not allowed' });
+  }
+  next();
+});
+
 // ---------------------------------------------------------------------------
 // Health check (no auth)
 // ---------------------------------------------------------------------------
 app.get('/health', (req, res) => {
-  res.json({ success: true, status: 'ok', ts: new Date().toISOString() });
+  const ready = mongoose.connection.readyState === 1;
+  res.status(ready ? 200 : 503).json({
+    success: ready,
+    status: ready ? 'ok' : 'unavailable',
+    database: ready ? 'connected' : 'disconnected',
+    ts: new Date().toISOString(),
+  });
 });
 app.get('/api/health', (req, res) => {
-  res.json({ success: true, status: 'ok', ts: new Date().toISOString() });
+  const ready = mongoose.connection.readyState === 1;
+  res.status(ready ? 200 : 503).json({
+    success: ready,
+    status: ready ? 'ok' : 'unavailable',
+    database: ready ? 'connected' : 'disconnected',
+    ts: new Date().toISOString(),
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -4,7 +4,7 @@
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import axiosInstance from '../api/axiosInstance';
-import { formatDate, truncateHash } from '../utils/formatters';
+import { formatDate } from '../utils/formatters';
 import HashDisplay from '../components/HashDisplay.jsx';
 
 const ACTION_OPTIONS = ['', 'upload', 'download', 'verify', 'sign', 'share', 'login', 'logout', 'delete', 'view'];

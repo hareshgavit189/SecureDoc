@@ -6,10 +6,11 @@ const crypto = require('crypto');
 // Master Key
 // ---------------------------------------------------------------------------
 function getMasterKey() {
-  const hex = process.env.MASTER_KEY_HEX || '0'.repeat(64);
-  // Ensure exactly 32 bytes
-  const buf = Buffer.from(hex.padEnd(64, '0').slice(0, 64), 'hex');
-  return buf;
+  const hex = process.env.MASTER_KEY_HEX || '';
+  if (!/^[a-f0-9]{64}$/i.test(hex) || /^0+$/i.test(hex)) {
+    throw new Error('MASTER_KEY_HEX must be a non-zero 64-character hexadecimal key');
+  }
+  return Buffer.from(hex, 'hex');
 }
 
 // ---------------------------------------------------------------------------
@@ -98,6 +99,27 @@ function hashString(str) {
   return crypto.createHash('sha256').update(str).digest('hex');
 }
 
+function encryptSecret(secret) {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', getMasterKey(), iv);
+  const ciphertext = Buffer.concat([cipher.update(secret, 'utf8'), cipher.final()]);
+  return JSON.stringify({
+    iv: iv.toString('hex'),
+    data: ciphertext.toString('hex'),
+    tag: cipher.getAuthTag().toString('hex'),
+  });
+}
+
+function decryptSecret(payload) {
+  const encrypted = JSON.parse(payload);
+  const decipher = crypto.createDecipheriv('aes-256-gcm', getMasterKey(), Buffer.from(encrypted.iv, 'hex'));
+  decipher.setAuthTag(Buffer.from(encrypted.tag, 'hex'));
+  return Buffer.concat([
+    decipher.update(Buffer.from(encrypted.data, 'hex')),
+    decipher.final(),
+  ]).toString('utf8');
+}
+
 // ---------------------------------------------------------------------------
 // Digital Signatures (ECDSA P-256)
 // ---------------------------------------------------------------------------
@@ -134,6 +156,8 @@ module.exports = {
   decryptFile,
   hashBuffer,
   hashString,
+  encryptSecret,
+  decryptSecret,
   signData,
   verifySignature,
   generateKeyPair,

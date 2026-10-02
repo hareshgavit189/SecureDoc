@@ -5,6 +5,7 @@
   "scripts": {
     "install:all": "npm --prefix server install && npm --prefix client install",
     "build": "npm --prefix client run build",
+    "lint": "npm --prefix client run lint",
     "start": "node server/src/server.js",
     "seed": "npm --prefix server run seed",
     "test": "npm --prefix server test",

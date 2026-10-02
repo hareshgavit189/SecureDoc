@@ -5,10 +5,9 @@
  * and immutable Merkle ledger audit trails under Bharatiya Sakshya Adhiniyam (BSA) 2023 §63.
  */
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import axiosInstance, { API_BASE } from '../api/axiosInstance';
-import HashDisplay from '../components/HashDisplay';
 import TamperAlert from '../components/TamperAlert';
 import ClassificationBadge from '../components/ClassificationBadge';
 import { formatDate } from '../utils/formatters';

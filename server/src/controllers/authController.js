@@ -20,7 +20,7 @@ function signAccessToken(user) {
 
 function signRefreshToken(user) {
   return jwt.sign(
-    { id: user._id },
+    { id: user._id, jti: require('crypto').randomUUID() },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: '7d' }
   );
@@ -107,7 +107,7 @@ exports.login = async (req, res, next) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      sameSite: process.env.COOKIE_SAME_SITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -178,6 +178,15 @@ exports.refresh = async (req, res, next) => {
     if (!matches) return res.status(401).json({ success: false, error: 'Refresh token revoked' });
 
     const accessToken = signAccessToken(user);
+    const rotatedRefreshToken = signRefreshToken(user);
+    const rotatedRefreshHash = await bcrypt.hash(rotatedRefreshToken, 12);
+    await User.updateOne({ _id: user._id }, { refreshTokenHash: rotatedRefreshHash });
+    res.cookie('refreshToken', rotatedRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.COOKIE_SAME_SITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.json({ success: true, data: { accessToken } });
   } catch (err) { next(err); }
 };
@@ -185,7 +194,8 @@ exports.refresh = async (req, res, next) => {
 // POST /auth/logout
 exports.logout = async (req, res, next) => {
   try {
-    res.clearCookie('refreshToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' });
+    await User.updateOne({ _id: req.user.id }, { $set: { refreshTokenHash: '' } });
+    res.clearCookie('refreshToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.COOKIE_SAME_SITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax') });
     res.json({ success: true, data: { message: 'Logged out' } });
   } catch (err) { next(err); }
 };
@@ -224,4 +234,3 @@ exports.updateUser = async (req, res, next) => {
     res.json({ success: true, data: user });
   } catch (err) { next(err); }
 };
-

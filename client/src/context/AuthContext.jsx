@@ -21,15 +21,11 @@ export function AuthProvider({ children }) {
       return null;
     }
   });
-  const [accessToken, setAccessToken] = useState(() => {
-    return localStorage.getItem('securedoc_token') || null;
-  });
-  const [loading, setLoading] = useState(() => {
-    return !localStorage.getItem('securedoc_token');
-  });
+  const [accessToken, setAccessToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Ref so interceptors always have the latest token without stale closure
-  const tokenRef = useRef(localStorage.getItem('securedoc_token') || null);
+  const tokenRef = useRef(null);
 
   // ── Refresh Token ─────────────────────────────────────────────
   const refreshToken = useCallback(async () => {
@@ -39,7 +35,6 @@ export function AuthProvider({ children }) {
       const { accessToken: newToken, user: newUser } = rData;
       tokenRef.current = newToken;
       setAccessToken(newToken);
-      localStorage.setItem('securedoc_token', newToken);
       if (newUser) {
         setUser(newUser);
         localStorage.setItem('securedoc_user', JSON.stringify(newUser));
@@ -50,7 +45,6 @@ export function AuthProvider({ children }) {
       tokenRef.current = null;
       setAccessToken(null);
       setUser(null);
-      localStorage.removeItem('securedoc_token');
       localStorage.removeItem('securedoc_user');
       return null;
     }
@@ -59,8 +53,7 @@ export function AuthProvider({ children }) {
   // ── Bootstrap: try to restore session on mount ────────────────
   useEffect(() => {
     (async () => {
-      const savedToken = localStorage.getItem('securedoc_token');
-      if (savedToken) {
+      if (tokenRef.current) {
         try {
           const res = await axiosInstance.get('/auth/me');
           const userData = res.data?.data || res.data;
@@ -81,7 +74,7 @@ export function AuthProvider({ children }) {
   // ── Axios Request Interceptor: attach Bearer token ────────────
   useEffect(() => {
     const reqId = axiosInstance.interceptors.request.use((config) => {
-      const activeToken = tokenRef.current || localStorage.getItem('securedoc_token');
+      const activeToken = tokenRef.current;
       if (activeToken) {
         config.headers['Authorization'] = `Bearer ${activeToken}`;
       }
@@ -126,7 +119,6 @@ export function AuthProvider({ children }) {
     tokenRef.current = token;
     setAccessToken(token);
     setUser(loggedInUser);
-    localStorage.setItem('securedoc_token', token);
     localStorage.setItem('securedoc_user', JSON.stringify(loggedInUser));
     return loginData;
   };
@@ -141,7 +133,6 @@ export function AuthProvider({ children }) {
       tokenRef.current = null;
       setAccessToken(null);
       setUser(null);
-      localStorage.removeItem('securedoc_token');
       localStorage.removeItem('securedoc_user');
     }
   };

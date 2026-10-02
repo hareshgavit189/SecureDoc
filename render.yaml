@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: securedoc-api
+    runtime: node
+    plan: starter
+    buildCommand: npm run install:all && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: MASTER_KEY_HEX
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: COOKIE_SAME_SITE
+        value: none

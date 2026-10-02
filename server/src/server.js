@@ -3,6 +3,7 @@
 require('dotenv').config();
 
 const connectDB = require('./config/db');
+const { validateEnvironment } = require('./config/env');
 const app = require('./app');
 const { startMerkleBatchJob } = require('./jobs/merkleBatch');
 const { startDeadlineAlertsJob } = require('./jobs/deadlineAlerts');
@@ -10,6 +11,8 @@ const { startDeadlineAlertsJob } = require('./jobs/deadlineAlerts');
 const PORT = process.env.PORT || 5000;
 
 async function main() {
+  validateEnvironment();
+
   // Connect to MongoDB
   await connectDB();
 

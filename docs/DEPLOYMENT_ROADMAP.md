@@ -51,18 +51,39 @@ The repository is now pre-configured for instant production deployment:
 
 ## 3. Pre-Deployment Security Checklist
 
-Before deploying, generate high-entropy cryptographic secrets on your local machine using Node.js:
+Before deploying, generate high-entropy cryptographic secrets on your local machine using Node.js. The JWT secrets below are 32 random bytes (64 hexadecimal characters), and `MASTER_KEY_HEX` is exactly 32 random bytes encoded as 64 hexadecimal characters. Never commit the resulting `.env` file.
 
 ```bash
-# 1. Generate 32-byte (64 hex characters) KMS Master Key for AES-256-GCM Envelope Encryption:
-node -e "console.log('MASTER_KEY_HEX=' + require('crypto').randomBytes(32).toString('hex'))"
-
-# 2. Generate 64-byte random secret for JWT Access Tokens:
-node -e "console.log('JWT_ACCESS_SECRET=' + require('crypto').randomBytes(32).toString('hex'))"
-
-# 3. Generate 64-byte random secret for JWT Refresh Tokens:
-node -e "console.log('JWT_REFRESH_SECRET=' + require('crypto').randomBytes(32).toString('hex'))"
+# Generate all three entries (run from the repository root):
+node -e "const c=require('crypto'); console.log('JWT_ACCESS_SECRET=' + c.randomBytes(32).toString('hex')); console.log('JWT_REFRESH_SECRET=' + c.randomBytes(32).toString('hex')); console.log('MASTER_KEY_HEX=' + c.randomBytes(32).toString('hex'))"
 ```
+
+Copy the output into the appropriate `.env` file, for example:
+
+```dotenv
+JWT_ACCESS_SECRET=<first generated value>
+JWT_REFRESH_SECRET=<second generated value>
+MASTER_KEY_HEX=<third generated value>
+```
+
+On Windows PowerShell, this writes the generated values directly to a local root `.env` file:
+
+```powershell
+$crypto = "const c=require('crypto'); process.stdout.write(c.randomBytes(32).toString('hex'))"
+$access = node -e "$crypto"
+$refresh = node -e "$crypto"
+$master = node -e "$crypto"
+@"
+NODE_ENV=production
+PORT=5000
+JWT_ACCESS_SECRET=$access
+JWT_REFRESH_SECRET=$refresh
+MASTER_KEY_HEX=$master
+CLIENT_ORIGIN=https://securedoc.yourdomain.gov.in
+"@ | Set-Content -Encoding utf8 .env
+```
+
+For Docker Compose, run the PowerShell command from the repository root. Compose automatically reads the ignored root `.env` file. For Render, Railway, or another PaaS, paste the generated values into its encrypted environment-variable settings instead of creating a committed file.
 
 ### Production Environment Variables Table
 

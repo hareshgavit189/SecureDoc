@@ -13,11 +13,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      - MONGO_URI=mongodb://mongo:27017/legal_dms
-      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-change_in_production_jwt_access_secret_key_32c}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-change_in_production_jwt_refresh_secret_key_32c}
-      - MASTER_KEY_HEX=${MASTER_KEY_HEX:-0000000000000000000000000000000000000000000000000000000000000000}
-      - CLIENT_ORIGIN=${CLIENT_ORIGIN:-http://localhost:5000}
+      - MONGO_URI=mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongo:27017/legal_dms?authSource=admin
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - MASTER_KEY_HEX=${MASTER_KEY_HEX}
+      - CLIENT_ORIGIN=${CLIENT_ORIGIN}
+      - COOKIE_SAME_SITE=${COOKIE_SAME_SITE:-lax}
     depends_on:
       mongo:
         condition: service_healthy
@@ -27,10 +28,11 @@ services:
     image: mongo:7.0
     container_name: securedoc_db
     restart: unless-stopped
-    ports:
-      - '27017:27017'
     volumes:
       - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s

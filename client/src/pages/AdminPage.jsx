@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import HashDisplay from '../components/HashDisplay';
 import ClassificationBadge from '../components/ClassificationBadge';
-import { formatDate, getRoleBadgeColor, getClearanceBadgeColor } from '../utils/formatters';
+import { formatDate, getRoleBadgeColor } from '../utils/formatters';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('users'); // 'users' | 'compliance' | 'merkle'
@@ -22,7 +22,7 @@ export default function AdminPage() {
 
   // Compliance State
   const [compliance, setCompliance] = useState(null);
-  const [compLoading, setCompLoading] = useState(false);
+  const [, setCompLoading] = useState(false);
   const [chainVerifyResult, setChainVerifyResult] = useState(null);
   const [verifyingChain, setVerifyingChain] = useState(false);
 
@@ -391,7 +391,7 @@ export default function AdminPage() {
                   ) : batches.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="text-center py-4 text-muted">
-                        No Merkle batches anchored yet. Click "Anchor New Merkle Batch" to compile.
+                        No Merkle batches anchored yet. Click &quot;Anchor New Merkle Batch&quot; to compile.
                       </td>
                     </tr>
                   ) : (

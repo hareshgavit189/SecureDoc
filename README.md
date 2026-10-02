@@ -11,9 +11,97 @@ SecureDoc DMS is a centralized, tamper-evident digital evidence repository archi
 
 ---
 
-## 🚀 Live Demo & Quickstart
+## 🚀 Quickstart
 
-### 1. Servers Currently Running
+### Prerequisites
+
+- Node.js 20 LTS or newer
+- MongoDB 7 or MongoDB Atlas
+- npm 10 or newer
+
+### Local development
+
+```bash
+git clone <repository-url>
+cd SecureDoc
+npm run install:all
+copy server\.env.example server\.env
+```
+
+Edit `server/.env` with a local MongoDB URI and generated secrets. Generate secure values with:
+
+```bash
+node -e "const c=require('crypto'); console.log('JWT_ACCESS_SECRET=' + c.randomBytes(32).toString('hex')); console.log('JWT_REFRESH_SECRET=' + c.randomBytes(32).toString('hex')); console.log('MASTER_KEY_HEX=' + c.randomBytes(32).toString('hex'))"
+```
+
+Start the API and frontend in separate terminals:
+
+```bash
+npm run dev:server
+npm run dev:client
+```
+
+The frontend is available at [http://localhost:5173](http://localhost:5173), the API at [http://localhost:5000](http://localhost:5000), and the readiness check at [http://localhost:5000/api/health](http://localhost:5000/api/health).
+
+> Never commit `.env` files. Production startup rejects missing or weak JWT secrets and invalid master keys.
+
+### Production build
+
+```bash
+npm run build
+NODE_ENV=production npm start
+```
+
+For Docker Compose, copy `.env.example` to `.env`, replace every placeholder, then run:
+
+```bash
+docker compose up -d --build
+```
+
+### Seed demo data
+
+```bash
+npm run seed
+```
+
+The seeder is intended for demonstrations and development only. Replace all demo credentials before any real deployment.
+
+### Render + Vercel deployment
+
+For a split production deployment:
+
+1. Create a MongoDB Atlas production cluster with a private/network-restricted access policy, backups, and a least-privilege database user.
+2. Create a Render Web Service from this repository. The included [`render.yaml`](./render.yaml) uses the API and serves the built client as a fallback.
+3. Set `MONGO_URI`, `MASTER_KEY_HEX`, and `CLIENT_ORIGIN` in Render. `CLIENT_ORIGIN` must be the exact HTTPS Vercel URL.
+4. Create a Vercel project with `client` as the root directory.
+5. Set Vercel `VITE_API_URL` to the Render API URL, for example `https://securedoc-api.onrender.com`.
+6. Set `COOKIE_SAME_SITE=none` on Render and use HTTPS on both domains.
+7. Do not run `npm run seed` against production. Use a separate demo database and `npm run seed:demo` only for isolated demonstrations.
+
+Render and Vercel account creation, DNS, MongoDB network allowlists, TLS issuance, backups, monitoring, and security approval must be completed by the deployment owner.
+
+Production restrictions:
+
+- Public registration is disabled; administrators create accounts.
+- Demo seeding is blocked when `NODE_ENV=production`.
+- Mock Aadhaar eSign callbacks are disabled in production.
+- MongoDB is not published by the included Docker Compose configuration.
+- Refresh tokens rotate on refresh and are revoked on logout.
+- Signing private keys are encrypted with `MASTER_KEY_HEX` before database storage.
+
+## 🎬 Recommended 10-minute jury demonstration
+
+1. **Problem and users (1 minute):** Explain fragmented evidence storage, unauthorized access, and weak tamper detection.
+2. **Secure login and RBAC (1 minute):** Sign in as the Investigating Officer and show role-specific navigation.
+3. **Case and encrypted upload (2 minutes):** Open a case, upload a forensic PDF, and show its SHA-256 fingerprint and classification.
+4. **Integrity verification (2 minutes):** Download the document, open the public verifier, and show the Section 63 certificate.
+5. **Tamper-evident proof (2 minutes):** Demonstrate that changing a stored GridFS chunk causes AES-GCM verification to fail and raises a tamper alert.
+6. **Operational value (1 minute):** Show deadlines, chain of custody, controlled sharing, and audit history.
+7. **Technical summary (1 minute):** Explain React/Vite, Express REST APIs, MongoDB/GridFS, JWT/RBAC, envelope encryption, hash-chained audit blocks, and Merkle batches.
+
+Use demo data only and clearly identify mocked integrations such as Aadhaar eSign, CCTNS, e-Courts, and NDSO.
+
+### Local URLs
 - **Frontend App (React / Vite):** [http://localhost:5173](http://localhost:5173)
 - **Backend API (Node.js / Express):** [http://localhost:5000](http://localhost:5000)
 - **API Health Check:** [http://localhost:5000/health](http://localhost:5000/health)

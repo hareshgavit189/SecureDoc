@@ -49,7 +49,9 @@ function DocumentViewerPage() {
           if (sigRes.data?.success) {
             setDoc((prev) => ({ ...prev, signatures: sigRes.data.data }));
           }
-        } catch (_) {}
+        } catch (signatureError) {
+          console.warn('Document signatures could not be loaded:', signatureError);
+        }
       } catch (e) {
         setError(e.response?.data?.error || e.response?.data?.message || 'Document not found');
       } finally {
@@ -93,7 +95,7 @@ function DocumentViewerPage() {
 
   const handleSign = async () => {
     try {
-      const res = await axiosInstance.post(`/documents/${id}/sign`);
+      await axiosInstance.post(`/documents/${id}/sign`);
       alert('✅ Document signed successfully');
       // Refresh doc
       const docRes = await axiosInstance.get(`/documents/${id}`);
