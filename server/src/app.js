@@ -28,6 +28,7 @@ const configuredOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+const isLocalOrigin = (origin) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
 
 // ---------------------------------------------------------------------------
 // Security headers
@@ -45,7 +46,7 @@ app.use(
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || configuredOrigins.includes(origin)) {
+      if (!origin || configuredOrigins.includes(origin) || (isDev && isLocalOrigin(origin))) {
         return callback(null, true);
       }
       return callback(new Error('Request origin is not allowed'));

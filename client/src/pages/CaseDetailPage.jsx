@@ -61,6 +61,11 @@ function CaseDetailPage() {
     try {
       const res = await axiosInstance.get(`/documents/${docId}/verify`);
       const data = res.data?.data || res.data;
+      setDocuments((currentDocuments) => currentDocuments.map((document) => (
+        document._id === docId
+          ? { ...document, integrityStatus: data.intact ? 'intact' : 'tampered' }
+          : document
+      )));
       alert(data.intact ? '✅ Document Intact' : '❌ TAMPERED!');
     } catch { alert('Verification failed'); }
   };
